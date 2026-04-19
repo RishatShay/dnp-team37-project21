@@ -1,0 +1,91 @@
+syntax = "proto3";
+
+package raft;
+
+option go_package = "project21/internal/pb;pb";
+
+service RaftService {
+  rpc RequestVote(RequestVoteRequest) returns (RequestVoteResponse);
+  rpc AppendEntries(AppendEntriesRequest) returns (AppendEntriesResponse);
+  rpc SubmitEntry(SubmitEntryRequest) returns (SubmitEntryResponse);
+  rpc QueryLog(QueryLogRequest) returns (QueryLogResponse);
+  rpc GetMetrics(GetMetricsRequest) returns (GetMetricsResponse);
+}
+
+message LogEntry {
+  int64 index = 1;
+  int64 term = 2;
+  string command = 3;
+}
+
+message RequestVoteRequest {
+  int64 term = 1;
+  string candidate_id = 2;
+  int64 last_log_index = 3;
+  int64 last_log_term = 4;
+}
+
+message RequestVoteResponse {
+  int64 term = 1;
+  bool vote_granted = 2;
+}
+
+message AppendEntriesRequest {
+  int64 term = 1;
+  string leader_id = 2;
+  int64 prev_log_index = 3;
+  int64 prev_log_term = 4;
+  repeated LogEntry entries = 5;
+  int64 leader_commit = 6;
+}
+
+message AppendEntriesResponse {
+  int64 term = 1;
+  bool success = 2;
+  int64 match_index = 3;
+}
+
+message SubmitEntryRequest {
+  string command = 1;
+}
+
+message SubmitEntryResponse {
+  bool ok = 1;
+  string leader_id = 2;
+  int64 index = 3;
+  int64 term = 4;
+  string message = 5;
+}
+
+message QueryLogRequest {}
+
+message QueryLogResponse {
+  string node_id = 1;
+  string role = 2;
+  string leader_id = 3;
+  int64 current_term = 4;
+  int64 commit_index = 5;
+  int64 last_applied = 6;
+  repeated LogEntry entries = 7;
+  map<string, string> state = 8;
+}
+
+message GetMetricsRequest {}
+
+message EntryMetric {
+  int64 index = 1;
+  int64 submitted_at_unix_nano = 2;
+  int64 committed_at_unix_nano = 3;
+  int64 applied_at_unix_nano = 4;
+  int64 apply_delay_nanos = 5;
+}
+
+message GetMetricsResponse {
+  string node_id = 1;
+  string role = 2;
+  int64 current_term = 3;
+  int64 commit_index = 4;
+  int64 last_applied = 5;
+  int64 replication_lag = 6;
+  repeated EntryMetric metrics = 7;
+}
