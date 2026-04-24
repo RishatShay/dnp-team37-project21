@@ -1,0 +1,53 @@
+services:
+  node1:
+    build: .
+    environment:
+      NODE_ID: node1
+      RAFT_ADDR: :50051
+      DATA_DIR: /data
+      PEERS: node1=node1:50051,node2=node2:50051,node3=node3:50051
+    ports:
+      - "5001:50051"
+    volumes:
+      - ./data/node1:/data
+    networks:
+      - raft
+
+  node2:
+    build: .
+    environment:
+      NODE_ID: node2
+      RAFT_ADDR: :50051
+      DATA_DIR: /data
+      PEERS: node1=node1:50051,node2=node2:50051,node3=node3:50051
+    ports:
+      - "5002:50051"
+    volumes:
+      - ./data/node2:/data
+    networks:
+      - raft
+
+  node3:
+    build: .
+    environment:
+      NODE_ID: node3
+      RAFT_ADDR: :50051
+      DATA_DIR: /data
+      PEERS: node1=node1:50051,node2=node2:50051,node3=node3:50051
+    ports:
+      - "5003:50051"
+    volumes:
+      - ./data/node3:/data
+    networks:
+      - raft
+
+  client:
+    build: .
+    entrypoint: ["/bin/client"]
+    profiles: ["tools"]
+    networks:
+      - raft
+
+networks:
+  raft:
+    driver: bridge
